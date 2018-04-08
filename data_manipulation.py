@@ -39,7 +39,7 @@ def get_sentences(sentences_df):
             i += 1
             if (i > NUM_SENTENCES): break
             sentence = sentence.lower()
-            sentence_chars = [i for i in sentence]
+            sentence_chars = [c for c in sentence]
             temp_sentence = sentence_chars + [STOP_CHAR]
 
             # list of all characters in this dataset for frequences
@@ -52,7 +52,7 @@ def get_sentences(sentences_df):
 
 
 def main():
-    sentences_df = read_data(DATA, lang=['eng'])
+    sentences_df = read_data(DATA, lang=['eng', 'cmn'])
     # print(sentences_df.loc[sentences_df['lang'] == sentences_df['lang'].unique()[0]])
     sentences_df.to_csv("data/languages.csv", sep="\t", index=False, header=None)
     sentence_list = get_sentences(sentences_df)

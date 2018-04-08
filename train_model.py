@@ -1,13 +1,13 @@
 import nltk
-import language_models.data_manipulation as dm
+import data_manipulation as dm
 from collections import Counter
 import pickle as pkl
 import os
-from language_models.ngram_model import Ngram
-
+from ngram_model import Ngram
 
 DATA = "data/languages.csv"
 MODEL = "models/"
+
 
 def make_ngrams(sentences, n=1):
     """
@@ -29,17 +29,18 @@ def save_model(fdist, filename):
         pkl.dump(fdist, model_file)
     return 0
 
+
 def main():
     # load and manipulate data
     sentences_df = dm.read_data(DATA, lang=['eng'])
     sentence_list = dm.get_sentences(sentences_df)
-    # make ngrams
-    n = 3
+
+    n = 5 # make ngrams
     ngram_counts = make_ngrams(sentence_list, n=n)
     part_ngram_counts = make_ngrams(sentence_list, n=n-1)
     f_dist_ngram = Counter(ngram_counts)
     f_dist_part_ngram = Counter(part_ngram_counts)
-    ngram_model = Ngram(f_dist_ngram, f_dist_part_ngram) # ngram model
+    ngram_model = Ngram(f_dist_ngram, f_dist_part_ngram, n) # ngram model
 
     # save model
     save_model(ngram_model, "{0}gram_model.pkl".format(n))
