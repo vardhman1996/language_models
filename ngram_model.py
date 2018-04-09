@@ -10,17 +10,32 @@ class Ngram:
         self.k = k
 
     def get_probability(self, character, context):
-        numerator_key = tuple(context + [character])
-        denominator_key = tuple(context)
+        num_chars = self.n - 1
+
+        if self.n == 1:
+            numerator_key = tuple([character])
+        else:
+            numerator_key = tuple(context[(-num_chars):] + [character])
+
+        if self.n == 1:
+            # unigram model so denom is N
+            denom_count = sum(self.part_dict.values())
+        else:
+            denominator_key = tuple(context[(-num_chars):])
+            denom_count = self.part_dict[denominator_key]
+
 
         numer_count = self.model[numerator_key]
-        denom_count = self.part_dict[denominator_key]
+        if denom_count == 0 or numer_count == 0:
+            return 0
 
-        prob = (numer_count + self.k)/ (len(self.model.keys()) * self.k + denom_count)
-        return math.log(prob, 2)
+        prob = (numer_count)/(denom_count)
+        return prob
+
 
     def get_n(self):
         return self.n
+
 
     def generate_char(self, context):
         num_chars = self.n - 1
@@ -28,13 +43,14 @@ class Ngram:
         possible_chars = []
         max_prob = -math.inf
 
+        # TODO: bug to fix when counts are 0
         for tup, count in self.model.items():
             current_tup = list(tup)
             if context != current_tup[:-1]: continue
 
             current_prob = self.get_probability(current_tup[-1], current_tup[:-1])
 
-            if abs(current_prob - max_prob) <= 0.001:
+            if abs(current_prob - max_prob) <= 0.00001:
                 # same log_probability
                 possible_chars += [current_tup[-1]]
             elif current_prob > max_prob:
@@ -42,4 +58,4 @@ class Ngram:
                 possible_chars = [current_tup[-1]]
                 max_prob = current_prob
 
-        return possible_chars
+        return random.sample(possible_chars, 1)[0]
