@@ -57,24 +57,25 @@ def main():
     sentences_df = dm.read_data(DATA, lang=['eng', 'cmn'])
     sentence_list = dm.get_sentences(sentences_df)
 
-    # unigram = make_ngrams(sentence_list, n=1)
-    # unk_chars = get_unk_chars(unigram)
-    #
-    # sentence_list = replace_unks(sentence_list, unk_chars)
+    # unking
+    unigram = make_ngrams(sentence_list, n=1)
+    unk_chars = get_unk_chars(unigram)
+    sentence_list = replace_unks(sentence_list, unk_chars)
 
     unigram = make_ngrams(sentence_list, n=1)
     f_dist_unigram = Counter(unigram)
 
-    unigram_model = Ngram(f_dist_unigram, f_dist_unigram, 1)
-    models = [unigram_model]
+    unigram_model = Ngram(f_dist_unigram, f_dist_unigram, 1, len(sentence_list))
+    unigram_model.model[(UNK_CHAR,)] = max(1, unigram_model.model[UNK_CHAR] )
 
+    models = [unigram_model]
     f_dist_part_ngram = f_dist_unigram
     for i in range(2, N + 1, 1):
         ngram = make_ngrams(sentence_list, i)
         f_dist_ngram = Counter(ngram)
 
 
-        ngram_model = Ngram(f_dist_ngram, f_dist_part_ngram, i)
+        ngram_model = Ngram(f_dist_ngram, f_dist_part_ngram, i, len(sentence_list))
         models += [ngram_model]
 
         f_dist_part_ngram = f_dist_ngram

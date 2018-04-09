@@ -26,13 +26,12 @@ def load_model():
 
 def main():
     lin_model = load_model()
-    lin_model.get_probability('x', ['a'])
 
     parser = argparse.ArgumentParser(description='Language model')
     parser.add_argument('-s', '--seed', type=int, default=1)
     args = parser.parse_args()
     seed = args.seed
-    random.seed(seed)
+    lin_model.set_seed(seed)
 
     while(1):
         # print("hello")
@@ -48,17 +47,20 @@ def main():
                 next_char = user_input_chars[i + 1]
                 if next_char == STOP_CHAR:
                     break
-                log_prob = lin_model.get_probability(next_char, context)
-                # inferred_char = lin_model.generate_char(context)
-                print("P({0}|{1}) = {2} MLE char = ".format(next_char, ''.join(context), log_prob))
+                checked_char = lin_model.check_unk(next_char)
+                log_prob = lin_model.get_probability(checked_char, context)
+                inferred_char = lin_model.generate_char(context)
+                print("P({0}|{1}) = {2} MLE char = {3}".format(next_char, ''.join(context), log_prob, inferred_char))
                 context += [next_char]
                 i += 1
+
             elif user_input_chars[i] == 'q':
                 next_char = user_input_chars[i + 1]
-                print("Next char: ", next_char)
+                next_char = lin_model.check_unk(next_char)
                 log_prob = lin_model.get_probability(next_char, context)
                 print(log_prob)
                 i += 1
+
             elif user_input_chars[i] == 'g':
                 inferred_char = lin_model.generate_char(context)
                 context += [inferred_char]

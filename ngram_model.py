@@ -3,11 +3,13 @@ import random
 from collections import Counter
 
 class Ngram:
-    def __init__(self, model:Counter, part_dict:Counter, n, k=1):
+    START_CHAR = '\u0002'  # U+0002 \x02
+    def __init__(self, model:Counter, part_dict:Counter, n, num_starts, k=1):
         self.model = model
         self.part_dict = part_dict
         self.n = n
         self.k = k
+        self.num_starts = num_starts
 
     def get_probability(self, character, context):
         num_chars = self.n - 1
@@ -21,8 +23,16 @@ class Ngram:
             # unigram model so denom is N
             denom_count = sum(self.part_dict.values())
         else:
+            all_start = True
             denominator_key = tuple(context[(-num_chars):])
-            denom_count = self.part_dict[denominator_key]
+            for char in denominator_key:
+                if char != self.START_CHAR:
+                    all_start = False
+
+            if all_start:
+                denom_count = self.num_starts
+            else:
+                denom_count = self.part_dict[denominator_key]
 
 
         numer_count = self.model[numerator_key]
