@@ -1,8 +1,10 @@
 import pandas as pd
+import codecs
+import numpy as np
 
 STOP_CHAR = '\u0003' # U+0003 \x03
 START_CHAR = '\u0002' # U+0002 \x02
-NUM_SENTENCES = 1000
+NUM_SENTENCES = 5000
 DATA = "data/sentences.csv"
 
 
@@ -36,7 +38,9 @@ def get_sentences(sentences_df):
         i = 0
         for sentence in data:
             i += 1
-            if (i > NUM_SENTENCES): break
+            if (i > NUM_SENTENCES):
+                print("Tatoeba DATA done")
+                break
             sentence = sentence.lower() # all sentences are lower cased
             sentence_chars = [c for c in sentence]
             temp_sentence = sentence_chars + [STOP_CHAR]
@@ -45,6 +49,40 @@ def get_sentences(sentences_df):
             sentence_list = sentence_list + [temp_sentence]
 
     return sentence_list
+
+
+def break_sentences(data):
+    i = 0
+    sentence_list = []
+    for sentence in data:
+        i += 1
+        if i % 5000 == 0:
+            print("Done: ", i)
+        sentence = sentence.lower()  # all sentences are lower cased
+        sentence_chars = [c for c in sentence]
+        temp_sentence = sentence_chars + [STOP_CHAR]
+
+        # list of char-split sentences to make ngrams
+        sentence_list = sentence_list + [temp_sentence]
+
+    return sentence_list
+
+
+
+def get_wili_data():
+    DATA_TRAIN = "data/wili-2018/x_train.txt"
+    DATA_TEST = "data/wili-2018/x_test.txt"
+
+    data_train = codecs.open(DATA_TRAIN, encoding='utf-8')
+    # data_test = codecs.open(DATA_TEST, encoding='utf-8')
+
+    sentences_train = break_sentences(data_train)
+    print("Length train: ", len(sentences_train))
+
+    # sentences_test = break_sentences(data_test)
+    # print("Length test: ", len(sentences_test))
+
+    return sentences_train
 
 
 # def main():

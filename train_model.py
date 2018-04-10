@@ -6,11 +6,12 @@ import os
 from ngram_model import Ngram
 from linear_interpolation import LinearInterpolation
 
-DATA = "data/test.csv"
+DATA = "data/sentences.csv"
 MODEL = "models/"
 N = 5
 UNK_CHAR = '\u0001'
 WEIGHTS = [0.01, 0.04, 0.15, 0.3, 0.5]
+LOAD_WILI = True
 
 
 def make_ngrams(sentences, n=1):
@@ -19,10 +20,12 @@ def make_ngrams(sentences, n=1):
     :return: list of ngrams
     """
     ngrams = []
-
+    i = 0
     # start symbol based on the n-gram
     start_sym_list = [dm.START_CHAR] * (n - 1)
     for sentence_char in sentences:
+        if i % 10000 == 0: print("Done: ", i, " n: ", n)
+        i += 1
         sentence_char = start_sym_list + sentence_char
         ngrams += list(nltk.ngrams(sentence_char, n))
     return ngrams
@@ -35,6 +38,7 @@ def get_unk_chars(unigram):
         if v == 1:
             unk_chars += [k[0]]
     return unk_chars
+
 
 def replace_unks(old_sentences, unk_chars):
     new_sentences = []
@@ -54,14 +58,27 @@ def save_model(fdist, filename):
 
 def main():
     # load and manipulate data
-    sentences_df = dm.read_data(DATA, lang=['eng', 'cmn'])
+    sentences_df = dm.read_data(DATA, lang=['eng', 'cmn', 'tur', 'rus', 'ita', 'epo',
+                                            'deu', 'fra', 'spa', 'por', 'hun', 'heb',
+                                            'jpn', 'ber', 'ukr', 'pol', 'fin', 'mkd'])
     sentence_list = dm.get_sentences(sentences_df)
 
+    print("sentence_list len: ", len(sentence_list))
+
+    # load wili data
+    if LOAD_WILI:
+        sentences_wili = dm.get_wili_data()
+        sentence_list += sentences_wili
+
     # unking
+    print("Unking characters")
     unigram = make_ngrams(sentence_list, n=1)
     unk_chars = get_unk_chars(unigram)
+    print("Num chars unked: ", len(unk_chars))
     sentence_list = replace_unks(sentence_list, unk_chars)
+    print("Unking over")
 
+    print("Ngrams generation started")
     unigram = make_ngrams(sentence_list, n=1)
     f_dist_unigram = Counter(unigram)
 

@@ -35,11 +35,11 @@ def main():
 
     while(1):
         # print("hello")
-        user_input = input() #TODO: should this be lower case? train is on lower case
+        user_input = input().lower() #TODO: should this be lower case? train is on lower case
         user_input_chars = [c for c in user_input]
 
         context = []
-
+        output = []
         i = 0
         while i < len(user_input_chars):
             # print("context: ", context, "i: ", i)
@@ -49,8 +49,7 @@ def main():
                     break
                 checked_char = lin_model.check_unk(next_char)
                 log_prob = lin_model.get_probability(checked_char, context)
-                inferred_char = lin_model.generate_char(context)
-                print("P({0}|{1}) = {2} MLE char = {3}".format(next_char, ''.join(context), log_prob, inferred_char))
+                print("P({0}|{1}) = {2} MLE char".format(next_char, ''.join(context), log_prob))
                 context += [next_char]
                 i += 1
 
@@ -64,10 +63,12 @@ def main():
             elif user_input_chars[i] == 'g':
                 inferred_char = lin_model.generate_char(context)
                 context += [inferred_char]
-                print(inferred_char)
+                output += [inferred_char]
+                # print(inferred_char)
             elif user_input_chars[i] == 'x':
                 exit(1)
             i+=1
+        print(''.join(output))
     return 0
 
 if __name__ == "__main__":
