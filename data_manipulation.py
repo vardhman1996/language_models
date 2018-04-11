@@ -1,6 +1,7 @@
 import pandas as pd
 import codecs
 import numpy as np
+import random
 
 STOP_CHAR = '\u0003' # U+0003 \x03
 START_CHAR = '\u0002' # U+0002 \x02
@@ -35,11 +36,12 @@ def get_sentences(sentences_df):
     for lang in languages:
         data_df = sentences_df.loc[sentences_df['lang'] == lang]
         data = data_df['sent'].values
+        random.shuffle(data)
         i = 0
         for sentence in data:
             i += 1
             if (i > NUM_SENTENCES):
-                print("Tatoeba DATA done")
+                print("Tatoeba DATA done: ", lang)
                 break
             sentence = sentence.lower() # all sentences are lower cased
             sentence_chars = [c for c in sentence]
@@ -71,7 +73,7 @@ def break_sentences(data):
 
 def get_wili_data():
     DATA_TRAIN = "data/wili-2018/x_train.txt"
-    DATA_TEST = "data/wili-2018/x_test.txt"
+    # DATA_TEST = "data/wili-2018/x_test.txt"
 
     data_train = codecs.open(DATA_TRAIN, encoding='utf-8')
     # data_test = codecs.open(DATA_TEST, encoding='utf-8')

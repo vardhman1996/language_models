@@ -3,6 +3,7 @@ import random
 from collections import Counter
 
 class Ngram:
+    V = 65424
     START_CHAR = '\u0002'  # U+0002 \x02
     def __init__(self, model:Counter, part_dict:Counter, n, num_starts, k=1):
         self.model = model
@@ -36,38 +37,38 @@ class Ngram:
 
 
         numer_count = self.model[numerator_key]
-        if denom_count == 0 or numer_count == 0:
-            return 0, denom_count == 0
+        # if denom_count == 0 or numer_count == 0:
+        #     return 0, denom_count == 0
 
 
-
-        prob = (numer_count)/(denom_count)
-        return prob, False
+        # k-smoothing
+        prob = (numer_count + self.k) / ((self.V * self.k) + denom_count)
+        return prob
 
 
     def get_n(self):
         return self.n
 
 
-    def generate_char(self, context):
-        num_chars = self.n - 1
-        context = context[(-num_chars):]
-        possible_chars = []
-        max_prob = -math.inf
-
-        # TODO: bug to fix when counts are 0
-        for tup, count in self.model.items():
-            current_tup = list(tup)
-            if context != current_tup[:-1]: continue
-
-            current_prob = self.get_probability(current_tup[-1], current_tup[:-1])
-
-            if abs(current_prob - max_prob) <= 0.00001:
-                # same log_probability
-                possible_chars += [current_tup[-1]]
-            elif current_prob > max_prob:
-                # log probability is greater
-                possible_chars = [current_tup[-1]]
-                max_prob = current_prob
-
-        return random.sample(possible_chars, 1)[0]
+    # def generate_char(self, context):
+    #     num_chars = self.n - 1
+    #     context = context[(-num_chars):]
+    #     possible_chars = []
+    #     max_prob = -math.inf
+    #
+    #     # TODO: bug to fix when counts are 0
+    #     for tup, count in self.model.items():
+    #         current_tup = list(tup)
+    #         if context != current_tup[:-1]: continue
+    #
+    #         current_prob = self.get_probability(current_tup[-1], current_tup[:-1])
+    #
+    #         if abs(current_prob - max_prob) <= 0.00001:
+    #             # same log_probability
+    #             possible_chars += [current_tup[-1]]
+    #         elif current_prob > max_prob:
+    #             # log probability is greater
+    #             possible_chars = [current_tup[-1]]
+    #             max_prob = current_prob
+    #
+    #     return random.sample(possible_chars, 1)[0]

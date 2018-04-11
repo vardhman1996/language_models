@@ -58,12 +58,10 @@ def save_model(fdist, filename):
 
 def main():
     # load and manipulate data
-    sentences_df = dm.read_data(DATA, lang=['eng', 'cmn', 'tur', 'rus', 'ita', 'epo',
-                                            'deu', 'fra', 'spa', 'por', 'hun', 'heb',
-                                            'jpn', 'ber', 'ukr', 'pol', 'fin', 'mkd'])
+    sentences_df = dm.read_data(DATA)
     sentence_list = dm.get_sentences(sentences_df)
 
-    print("sentence_list len: ", len(sentence_list))
+    print("sentence_list len: ", len(sentence_list), "unique lang", len(set(sentences_df['lang'].values)))
 
     # load wili data
     if LOAD_WILI:
@@ -71,32 +69,32 @@ def main():
         sentence_list += sentences_wili
 
     # unking
-    print("Unking characters")
-    unigram = make_ngrams(sentence_list, n=1)
-    unk_chars = get_unk_chars(unigram)
-    print("Num chars unked: ", len(unk_chars))
-    sentence_list = replace_unks(sentence_list, unk_chars)
-    print("Unking over")
+    # print("Unking characters")
+    # unigram = make_ngrams(sentence_list, n=1)
+    # unk_chars = get_unk_chars(unigram)
+    # print("Num chars unked: ", len(unk_chars))
+    # sentence_list = replace_unks(sentence_list, unk_chars)
+    # print("Unking over")
 
     print("Ngrams generation started")
     unigram = make_ngrams(sentence_list, n=1)
     f_dist_unigram = Counter(unigram)
 
     unigram_model = Ngram(f_dist_unigram, f_dist_unigram, 1, len(sentence_list))
-    unigram_model.model[(UNK_CHAR,)] = max(1, unigram_model.model[UNK_CHAR] )
+    # unigram_model.model[(UNK_CHAR,)] = max(1, unigram_model.model[UNK_CHAR] )
 
     models = [unigram_model]
     f_dist_part_ngram = f_dist_unigram
     for i in range(2, N + 1, 1):
         ngram = make_ngrams(sentence_list, i)
         f_dist_ngram = Counter(ngram)
-        ngram_model = Ngram(f_dist_ngram, f_dist_part_ngram, i, len(sentence_list))
+        ngram_model = Ngram(f_dist_ngram, f_dist_part_ngram, n=i, num_starts=len(sentence_list), k=0.001)
         models += [ngram_model]
         f_dist_part_ngram = f_dist_ngram
 
     lin_interpolation = LinearInterpolation(models, WEIGHTS)
     # save model
-    save_model(lin_interpolation, "lin_interpolate_model.pkl")
+    save_model(lin_interpolation, "lin_interpolate_model_no_unk.pkl")
     return 0
 
 
