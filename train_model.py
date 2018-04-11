@@ -90,23 +90,11 @@ def main():
     for i in range(2, N + 1, 1):
         ngram = make_ngrams(sentence_list, i)
         f_dist_ngram = Counter(ngram)
-
-
         ngram_model = Ngram(f_dist_ngram, f_dist_part_ngram, i, len(sentence_list))
         models += [ngram_model]
-
         f_dist_part_ngram = f_dist_ngram
 
     lin_interpolation = LinearInterpolation(models, WEIGHTS)
-
-
-    # n = 3 # make ngrams
-    # ngram_counts = make_ngrams(sentence_list, n=n)
-    # part_ngram_counts = make_ngrams(sentence_list, n=n-1)
-    # f_dist_ngram = Counter(ngram_counts)
-    # f_dist_part_ngram = Counter(part_ngram_counts)
-    # ngram_model = Ngram(f_dist_ngram, f_dist_part_ngram, n) # ngram model
-
     # save model
     save_model(lin_interpolation, "lin_interpolate_model.pkl")
     return 0

@@ -37,10 +37,12 @@ class Ngram:
 
         numer_count = self.model[numerator_key]
         if denom_count == 0 or numer_count == 0:
-            return 0
+            return 0, denom_count == 0
+
+
 
         prob = (numer_count)/(denom_count)
-        return prob
+        return prob, False
 
 
     def get_n(self):
